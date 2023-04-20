@@ -1,51 +1,60 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
-type Article struct {
-	Title  string
-	Author string
+type Circle struct {
+	radius float64
 }
 
-// defind a behavior
-type Stringer interface {
-	String() string
+func (c *Circle) Area() float64 {
+	return math.Pi * math.Pow(c.radius, 2)
 }
 
-// defind a method with that method behavior, meaning you can
-// reuse this method via the Stringer interface without rewriting
-// your function
-func (a *Article) String() string {
-	return fmt.Sprintf("The %q article was written by %s.\n", a.Title, a.Author)
+func (c *Circle) String() string {
+	return fmt.Sprintf("Circle {Radius : %.2f}", c.radius)
 }
 
-type Book struct {
-	Title  string
-	Author string
-	Page   int
+type Square struct {
+	Width  float64
+	Height float64
 }
 
-func (b *Book) String() string {
-	return fmt.Sprintf("the %q book was written by %s.\n", b.Title, b.Author)
+func (s *Square) Area() float64 {
+	return s.Height * s.Width
+}
+
+func (s *Square) String() string {
+	return fmt.Sprintf("Square {Width: %.2f, Height: %.2f}", s.Width, s.Height)
+}
+
+type Sizer interface {
+	Area() float64
+}
+
+type Shaper interface {
+	Sizer
+	fmt.Stringer
 }
 
 func main() {
-	a := &Article{
-		Title:  "Understanding Interface in Go",
-		Author: "Sammy Shark",
-	}
-	Print(a)
 
-	b := &Book{
-		Title:  "The godfather",
-		Author: " Mario Puzo",
-		Page:   50,
-	}
-	Print(b)
-
+	c := &Circle{5}
+	s := &Square{4, 3}
+	a := Less(c, s)
+	fmt.Printf("less is %+v\n", a)
+	PrintArea(s)
 }
 
-// defind a function accept the interface, then pass the interface method
-func Print(s Stringer) {
-	fmt.Println(s.String())
+func Less(s1, s2 Sizer) Sizer {
+	if s1.Area() > s2.Area() {
+		return s2
+	}
+	return s1
+}
+
+func PrintArea(s Shaper) {
+	fmt.Printf("area of %s is %.2f\n", s.String(), s.Area())
 }
